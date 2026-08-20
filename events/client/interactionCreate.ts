@@ -2,6 +2,10 @@ export = {
   name: 'interactionCreate',
   once: false,
   async execute(client: any, interaction: any) {
+    if (interaction.isMessageComponent()) {
+      const { handleRecommendationComponent } = await import('../../utils/recommendations');
+      if (await handleRecommendationComponent(client, interaction)) return;
+    }
     if (interaction.isCommand() || interaction.isContextMenuCommand()) {
       const cmd = client.commands.get(interaction.commandName);
       if (!cmd) return interaction.reply("Cette commande n'existe pas !");

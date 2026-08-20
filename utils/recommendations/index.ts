@@ -4,6 +4,7 @@ import { YouTubeProvider } from './youtube';
 import type { RecommendationProvider, RecommendationType } from './types';
 
 export * from './types';
+export * from './discord';
 
 export function getRecommendationProvider(type: RecommendationType): RecommendationProvider {
   switch (type) {
