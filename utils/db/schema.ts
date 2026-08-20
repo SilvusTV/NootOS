@@ -34,7 +34,40 @@ export const customCommand = sqliteTable(
   }),
 );
 
+export const recommendation = sqliteTable(
+  'recommendation',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    guildId: text('guild_id').notNull(),
+    type: text('type').notNull(),
+    externalId: text('external_id').notNull(),
+    title: text('title').notNull(),
+    year: integer('year'),
+    creator: text('creator'),
+    durationSeconds: integer('duration_seconds'),
+    releaseDate: text('release_date'),
+    imageUrl: text('image_url'),
+    sourceUrl: text('source_url').notNull(),
+    price: text('price'),
+    rating: text('rating'),
+    recommendedById: text('recommended_by_id').notNull(),
+    recommendedByName: text('recommended_by_name').notNull(),
+    channelId: text('channel_id').notNull(),
+    messageId: text('message_id'),
+    createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+  },
+  (table) => ({
+    guildTypeExternalUnique: uniqueIndex('recommendation_guild_type_external_unique').on(
+      table.guildId,
+      table.type,
+      table.externalId,
+    ),
+  }),
+);
+
 export type Config = typeof config.$inferSelect;
 export type NewConfig = typeof config.$inferInsert;
 export type CustomCommand = typeof customCommand.$inferSelect;
 export type NewCustomCommand = typeof customCommand.$inferInsert;
+export type Recommendation = typeof recommendation.$inferSelect;
+export type NewRecommendation = typeof recommendation.$inferInsert;

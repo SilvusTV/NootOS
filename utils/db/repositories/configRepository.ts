@@ -4,6 +4,10 @@ import { config, type Config } from '../schema';
 
 export const CONFIG_KEYS = {
   customCommandPrefix: 'customCommandPrefix',
+  recoChannelYoutube: 'recoChannelYoutube',
+  recoChannelMusic: 'recoChannelMusic',
+  recoChannelGame: 'recoChannelGame',
+  recoChannelMovie: 'recoChannelMovie',
 } as const;
 
 export type ConfigKey = (typeof CONFIG_KEYS)[keyof typeof CONFIG_KEYS];

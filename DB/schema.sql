@@ -24,3 +24,26 @@ CREATE TABLE IF NOT EXISTS customCommand (
   updated_at TEXT NOT NULL DEFAULT (datetime('now')),
   UNIQUE (guild_id, command)
 );
+
+-- Recommendations published by guild members.
+CREATE TABLE IF NOT EXISTS recommendation (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  guild_id TEXT NOT NULL,
+  type TEXT NOT NULL,
+  external_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  year INTEGER,
+  creator TEXT,
+  duration_seconds INTEGER,
+  release_date TEXT,
+  image_url TEXT,
+  source_url TEXT NOT NULL,
+  price TEXT,
+  rating TEXT,
+  recommended_by_id TEXT NOT NULL,
+  recommended_by_name TEXT NOT NULL,
+  channel_id TEXT NOT NULL,
+  message_id TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE (guild_id, type, external_id)
+);
