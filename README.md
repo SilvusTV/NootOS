@@ -1,3 +1,31 @@
+# BobbyBot
+
+BobbyBot est un bot Discord de recommandations pour un serveur entre amis. Il recherche les métadonnées, propose un aperçu, puis publie une fiche dans le salon associé à la catégorie.
+
+## Recommandations
+
+- `/reco type recherche` accepte un nom ou un lien, affiche jusqu'à cinq résultats, puis demande confirmation.
+- `/recos [type]` liste les 25 dernières recommandations, avec titre, année et artiste pour les musiques.
+- `/recoconfig type salon` associe un salon aux vidéos YouTube, musiques, jeux ou films. Cette commande requiert la permission Administrateur.
+- Les vidéos et musiques utilisent YouTube, les jeux utilisent Steam, et les films utilisent TMDB. Les liens IMDb sont acceptés pour les films.
+- Une même œuvre ne peut être recommandée qu'une fois par catégorie et par serveur.
+
+### Variables d'environnement
+
+Copiez `.env.example` vers `.env`, puis renseignez :
+
+```env
+DISCORD_TOKEN=...
+YOUTUBE_API_KEY=...
+TMDB_API_TOKEN=...
+DB_LOCATION=./DB/bot.db
+DISCORD_BOT_NAME=BobbyBot
+```
+
+Le bot Discord doit disposer de `Voir le salon`, `Envoyer des messages` et `Intégrer des liens` dans chaque salon de recommandations. YouTube nécessite une clé YouTube Data API v3. TMDB nécessite un Read Access Token (Bearer).
+
+---
+
 # Kernel de bot Discord
 
 Un noyau (kernel) minimaliste, moderne et extensible pour créer des bots Discord avec TypeScript et discord.js v14.

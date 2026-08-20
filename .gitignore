@@ -13,3 +13,5 @@ dist/
 .idea
 /color
 DB/bot.db
+DB/bot.db-shm
+DB/bot.db-wal

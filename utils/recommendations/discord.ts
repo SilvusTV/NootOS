@@ -14,6 +14,7 @@ type PendingRecommendation = {
   guildId: string;
   candidates: RecommendationCandidate[];
   selected?: RecommendationCandidate;
+  publishing?: boolean;
   expiresAt: number;
 };
 
@@ -74,7 +75,9 @@ export function buildRecommendationEmbed(candidate: RecommendationCandidate, rec
   if (candidate.year) fields.push({ name: 'Année', value: String(candidate.year), inline: true });
   const duration = formatDuration(candidate.durationSeconds);
   if (duration) fields.push({ name: 'Durée', value: duration, inline: true });
-  if (candidate.releaseDate && !candidate.year) fields.push({ name: 'Sortie', value: candidate.releaseDate, inline: true });
+  if (candidate.releaseDate && (candidate.type === 'youtube' || candidate.type === 'game')) {
+    fields.push({ name: 'Sortie', value: candidate.releaseDate, inline: true });
+  }
   if (candidate.price) fields.push({ name: 'Prix', value: candidate.price, inline: true });
   if (candidate.rating) fields.push({ name: 'Avis Steam', value: candidate.rating, inline: true });
   if (fields.length) embed.addFields(fields);
@@ -126,6 +129,11 @@ export async function handleRecommendationComponent(client: Client, interaction:
     return true;
   }
   if (action !== 'confirm' || !pending.selected) return true;
+  if (pending.publishing) {
+    await interaction.reply({ content: 'La publication est déjà en cours.', ephemeral: true });
+    return true;
+  }
+  pending.publishing = true;
 
   const candidate = pending.selected;
   const recommendations = new RecommendationRepository();
@@ -138,24 +146,25 @@ export async function handleRecommendationComponent(client: Client, interaction:
   const configs = new ConfigRepository();
   const channelId = configs.getValue(pending.guildId, CONFIG_KEYS[channelKeys[candidate.type]]);
   if (!channelId) {
+    pending.publishing = false;
     await interaction.reply({ content: `Aucun salon n’est configuré pour les recos ${labels[candidate.type]}.`, ephemeral: true });
     return true;
   }
   const channel: any = await client.channels.fetch(channelId).catch(() => null);
   if (!channel?.isTextBased() || typeof channel.send !== 'function') {
+    pending.publishing = false;
     await interaction.reply({ content: 'Le salon configuré est introuvable ou non textuel.', ephemeral: true });
     return true;
   }
 
   const message = await channel.send({ embeds: [buildRecommendationEmbed(candidate, interaction.member)] });
-  const row = recommendations.create({
+  recommendations.create({
     guildId: pending.guildId, type: candidate.type, externalId: candidate.externalId, title: candidate.title,
     year: candidate.year, creator: candidate.creator, durationSeconds: candidate.durationSeconds,
     releaseDate: candidate.releaseDate, imageUrl: candidate.imageUrl, sourceUrl: candidate.sourceUrl,
     price: candidate.price, rating: candidate.rating, recommendedById: interaction.user.id,
     recommendedByName: interaction.member?.displayName || interaction.user.username, channelId, messageId: message.id,
   });
-  recommendations.setMessageId(row.id, message.id);
   cache(client).delete(token);
   await interaction.update({ content: `Recommandation publiée dans <#${channelId}>.`, embeds: [], components: [] });
   return true;

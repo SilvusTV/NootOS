@@ -1,13 +1,13 @@
 {
   "name": "discord_bot",
   "version": "2.1.0",
-  "description": "",
+  "description": "BobbyBot, le bot Discord de recommandations entre amis",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node --transpile-only index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run build && node --test dist/tests/recommendationRepository.test.js"
   },
   "keywords": [],
   "author": "Silvus_tv",

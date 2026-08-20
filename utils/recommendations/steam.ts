@@ -6,6 +6,7 @@ type AppDetails = {
   name: string;
   steam_appid: number;
   header_image?: string;
+  capsule_image?: string;
   release_date?: { date?: string };
   price_overview?: { final_formatted?: string };
   is_free?: boolean;
@@ -47,7 +48,7 @@ export class SteamProvider implements RecommendationProvider {
       title: app.name,
       year: year ? Number(year) : undefined,
       releaseDate,
-      imageUrl: app.header_image,
+      imageUrl: app.capsule_image || app.header_image,
       sourceUrl: `https://store.steampowered.com/app/${id}`,
       price: app.is_free ? 'Gratuit' : app.price_overview?.final_formatted || 'Indisponible',
       rating: percent === undefined ? summary?.review_score_desc : `${percent}% positifs`,
