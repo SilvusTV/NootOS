@@ -22,9 +22,14 @@ export = {
       const query = interaction.options.getString('recherche', true).trim();
       const candidates = await getRecommendationProvider(type).search(query);
       if (!candidates.length) return interaction.editReply('Aucun résultat trouvé. Essaie avec un lien direct ou une recherche plus précise.');
-      const token = storePending(client, interaction.guildId, interaction.user.id, candidates);
+      const recommender = {
+        id: interaction.user.id,
+        name: interaction.member?.displayName || interaction.user.username,
+        avatarUrl: interaction.user.displayAvatarURL?.(),
+      };
+      const token = storePending(client, interaction.guildId, interaction.user.id, candidates, recommender);
       if (candidates.length === 1) {
-        return interaction.editReply({ content: 'Vérifie la recommandation avant sa publication.', embeds: [buildRecommendationEmbed(candidates[0], interaction.member)], components: [buildConfirmation(token)] });
+        return interaction.editReply({ content: 'Vérifie la recommandation avant sa publication.', embeds: [buildRecommendationEmbed(candidates[0], recommender)], components: [buildConfirmation(token)] });
       }
       return interaction.editReply({ content: 'Plusieurs résultats correspondent. Lequel veux-tu recommander ?', components: [buildSelection(token, candidates)] });
     } catch (error) {

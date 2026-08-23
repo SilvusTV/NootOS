@@ -23,7 +23,8 @@ export = {
       const metadata = [selected === 'all' ? labels[row.type] || row.type : undefined, row.year, row.type === 'music' ? row.creator : undefined].filter(Boolean).join(' • ');
       return `${index + 1}. [${row.title}](${row.sourceUrl})${metadata ? ` — ${metadata}` : ''}`;
     });
-    const embed = new EmbedBuilder().setColor(0x5865f2).setTitle('Les dernières recos').setDescription(lines.join('\n')).setFooter({ text: `${rows.length} recommandation${rows.length > 1 ? 's' : ''}` });
+    const title = selected === 'all' ? 'Les dernières recos' : `Les dernières recos • ${labels[selected] || selected}`;
+    const embed = new EmbedBuilder().setColor(0x5865f2).setTitle(title).setDescription(lines.join('\n')).setFooter({ text: `${rows.length} recommandation${rows.length > 1 ? 's' : ''}` });
     return interaction.reply({ embeds: [embed] });
   },
 };

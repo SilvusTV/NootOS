@@ -13,9 +13,16 @@ type PendingRecommendation = {
   userId: string;
   guildId: string;
   candidates: RecommendationCandidate[];
+  recommender?: Recommender;
   selected?: RecommendationCandidate;
   publishing?: boolean;
   expiresAt: number;
+};
+
+export type Recommender = {
+  id: string;
+  name: string;
+  avatarUrl?: string;
 };
 
 const labels: Record<RecommendationType, string> = {
@@ -25,7 +32,7 @@ const colors: Record<RecommendationType, number> = {
   youtube: 0xff0000, music: 0x1db954, game: 0x1b2838, movie: 0xf5c518, series: 0x01b4e4,
 };
 const channelKeys: Record<RecommendationType, keyof typeof CONFIG_KEYS> = {
-  youtube: 'recoChannelYoutube', music: 'recoChannelMusic', game: 'recoChannelGame', movie: 'recoChannelMovie', series: 'recoChannelMovie',
+  youtube: 'recoChannelYoutube', music: 'recoChannelMusic', game: 'recoChannelGame', movie: 'recoChannelMovie', series: 'recoChannelSeries',
 };
 
 function cache(client: any): Map<string, PendingRecommendation> {
@@ -38,9 +45,10 @@ export function storePending(
   guildId: string,
   userId: string,
   candidates: RecommendationCandidate[],
+  recommender?: Recommender,
 ): string {
   const token = Math.random().toString(36).slice(2, 10);
-  cache(client).set(token, { userId, guildId, candidates, selected: candidates.length === 1 ? candidates[0] : undefined, expiresAt: Date.now() + 10 * 60_000 });
+  cache(client).set(token, { userId, guildId, candidates, recommender, selected: candidates.length === 1 ? candidates[0] : undefined, expiresAt: Date.now() + 10 * 60_000 });
   return token;
 }
 
@@ -62,7 +70,7 @@ export function formatDuration(seconds?: number): string | undefined {
   return hours ? `${hours} h ${minutes.toString().padStart(2, '0')} min` : `${minutes}:${secs.toString().padStart(2, '0')}`;
 }
 
-export function buildRecommendationEmbed(candidate: RecommendationCandidate, recommender?: any): EmbedBuilder {
+export function buildRecommendationEmbed(candidate: RecommendationCandidate, recommender?: Recommender): EmbedBuilder {
   const embed = new EmbedBuilder()
     .setColor(colors[candidate.type])
     .setTitle(candidate.title)
@@ -81,7 +89,7 @@ export function buildRecommendationEmbed(candidate: RecommendationCandidate, rec
   if (candidate.price) fields.push({ name: 'Prix', value: candidate.price, inline: true });
   if (candidate.rating) fields.push({ name: 'Avis Steam', value: candidate.rating, inline: true });
   if (fields.length) embed.addFields(fields);
-  if (recommender) embed.setFooter({ text: `Recommandé par ${recommender.displayName || recommender.username}`, iconURL: recommender.displayAvatarURL?.() });
+  if (recommender) embed.setFooter({ text: `Recommandé par ${recommender.name}`, iconURL: recommender.avatarUrl });
   return embed;
 }
 
@@ -118,7 +126,7 @@ export async function handleRecommendationComponent(client: Client, interaction:
     pending.selected = pending.candidates[Number(interaction.values[0])];
     await interaction.update({
       content: 'Vérifie la recommandation avant sa publication.',
-      embeds: [buildRecommendationEmbed(pending.selected, interaction.member)],
+      embeds: [buildRecommendationEmbed(pending.selected, pending.recommender)],
       components: [buildConfirmation(token)],
     });
     return true;
@@ -157,13 +165,18 @@ export async function handleRecommendationComponent(client: Client, interaction:
     return true;
   }
 
-  const message = await channel.send({ embeds: [buildRecommendationEmbed(candidate, interaction.member)] });
+  const recommender = pending.recommender || {
+    id: interaction.user.id,
+    name: interaction.member?.displayName || interaction.user.username,
+    avatarUrl: interaction.user.displayAvatarURL?.(),
+  };
+  const message = await channel.send({ embeds: [buildRecommendationEmbed(candidate, recommender)] });
   recommendations.create({
     guildId: pending.guildId, type: candidate.type, externalId: candidate.externalId, title: candidate.title,
     year: candidate.year, creator: candidate.creator, durationSeconds: candidate.durationSeconds,
     releaseDate: candidate.releaseDate, imageUrl: candidate.imageUrl, sourceUrl: candidate.sourceUrl,
-    price: candidate.price, rating: candidate.rating, recommendedById: interaction.user.id,
-    recommendedByName: interaction.member?.displayName || interaction.user.username, channelId, messageId: message.id,
+    price: candidate.price, rating: candidate.rating, recommendedById: recommender.id,
+    recommendedByName: recommender.name, channelId, messageId: message.id,
   });
   cache(client).delete(token);
   await interaction.update({ content: `Recommandation publiée dans <#${channelId}>.`, embeds: [], components: [] });

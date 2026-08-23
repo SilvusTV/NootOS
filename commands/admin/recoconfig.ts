@@ -1,7 +1,7 @@
 import { ApplicationCommandOptionType, ChannelType, PermissionFlagsBits } from 'discord.js';
 import { CONFIG_KEYS, ConfigRepository } from '../../utils/db';
 
-const keys = { youtube: CONFIG_KEYS.recoChannelYoutube, music: CONFIG_KEYS.recoChannelMusic, game: CONFIG_KEYS.recoChannelGame, movie: CONFIG_KEYS.recoChannelMovie, series: CONFIG_KEYS.recoChannelMovie } as const;
+const keys = { youtube: CONFIG_KEYS.recoChannelYoutube, music: CONFIG_KEYS.recoChannelMusic, game: CONFIG_KEYS.recoChannelGame, movie: CONFIG_KEYS.recoChannelMovie, series: CONFIG_KEYS.recoChannelSeries } as const;
 
 export = {
   name: 'recoconfig', category: 'admin', ownerOnly: false, usage: 'recoconfig type salon', examples: ['recoconfig film #films'],
@@ -10,7 +10,7 @@ export = {
   options: [
     { name: 'type', description: 'Type de recommandation', type: ApplicationCommandOptionType.String, required: true, choices: [
       { name: 'Vidéo YouTube', value: 'youtube' }, { name: 'Musique', value: 'music' }, { name: 'Jeu', value: 'game' },
-      { name: 'Film', value: 'movie' }, { name: 'Série (même salon que les films)', value: 'series' },
+      { name: 'Film', value: 'movie' }, { name: 'Série', value: 'series' },
     ] },
     { name: 'salon', description: 'Salon qui recevra les recommandations', type: ApplicationCommandOptionType.Channel, required: true, channelTypes: [ChannelType.GuildText, ChannelType.GuildAnnouncement] },
   ],
