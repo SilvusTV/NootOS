@@ -19,13 +19,13 @@ type PendingRecommendation = {
 };
 
 const labels: Record<RecommendationType, string> = {
-  youtube: 'Vidéo YouTube', music: 'Musique', game: 'Jeu', movie: 'Film',
+  youtube: 'Vidéo YouTube', music: 'Musique', game: 'Jeu', movie: 'Film', series: 'Série',
 };
 const colors: Record<RecommendationType, number> = {
-  youtube: 0xff0000, music: 0x1db954, game: 0x1b2838, movie: 0xf5c518,
+  youtube: 0xff0000, music: 0x1db954, game: 0x1b2838, movie: 0xf5c518, series: 0x01b4e4,
 };
 const channelKeys: Record<RecommendationType, keyof typeof CONFIG_KEYS> = {
-  youtube: 'recoChannelYoutube', music: 'recoChannelMusic', game: 'recoChannelGame', movie: 'recoChannelMovie',
+  youtube: 'recoChannelYoutube', music: 'recoChannelMusic', game: 'recoChannelGame', movie: 'recoChannelMovie', series: 'recoChannelMovie',
 };
 
 function cache(client: any): Map<string, PendingRecommendation> {

@@ -1,4 +1,4 @@
-export const RECOMMENDATION_TYPES = ['youtube', 'music', 'game', 'movie'] as const;
+export const RECOMMENDATION_TYPES = ['youtube', 'music', 'game', 'movie', 'series'] as const;
 export type RecommendationType = (typeof RECOMMENDATION_TYPES)[number];
 
 export interface RecommendationCandidate {

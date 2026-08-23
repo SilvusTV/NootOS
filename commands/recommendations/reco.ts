@@ -3,12 +3,12 @@ import { buildConfirmation, buildRecommendationEmbed, buildSelection, getRecomme
 
 const choices = [
   { name: 'Vidéo YouTube', value: 'youtube' }, { name: 'Musique', value: 'music' },
-  { name: 'Jeu', value: 'game' }, { name: 'Film', value: 'movie' },
+  { name: 'Jeu', value: 'game' }, { name: 'Film', value: 'movie' }, { name: 'Série', value: 'series' },
 ];
 
 export = {
   name: 'reco', category: 'recommendations', ownerOnly: false,
-  usage: 'reco type recherche', examples: ['reco film Dune', 'reco jeu https://store.steampowered.com/app/1091500'],
+  usage: 'reco type recherche', examples: ['reco film Dune', 'reco série Severance', 'reco jeu https://store.steampowered.com/app/1091500'],
   description: 'Ajouter une recommandation.',
   options: [
     { name: 'type', description: 'Type de recommandation', type: ApplicationCommandOptionType.String, required: true, choices },

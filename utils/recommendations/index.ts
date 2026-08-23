@@ -11,6 +11,7 @@ export function getRecommendationProvider(type: RecommendationType): Recommendat
     case 'youtube': return new YouTubeProvider('youtube');
     case 'music': return new YouTubeProvider('music');
     case 'game': return new SteamProvider();
-    case 'movie': return new TmdbProvider();
+    case 'movie': return new TmdbProvider('movie');
+    case 'series': return new TmdbProvider('series');
   }
 }
