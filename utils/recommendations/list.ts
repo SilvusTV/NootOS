@@ -22,7 +22,7 @@ function render(state: ListState, token: string) {
   const lines = rows.map((row, index) => {
     const metadata = [!state.type ? labels[row.type] || row.type : undefined, row.year, row.type === 'music' ? row.creator : undefined].filter(Boolean).join(' • ');
     const votes = repository.upvoteCount(row.id);
-    return `**#${row.id}** · [${row.title}](${row.sourceUrl})${metadata ? ` — ${metadata}` : ''} · ⬆️ **${votes}**`;
+    return `[${row.title}](${row.sourceUrl})${metadata ? ` — ${metadata}` : ''} · ⬆️ **${votes}**`;
   });
   const title = state.type ? `Les dernières recos • ${labels[state.type] || state.type}` : 'Les dernières recos';
   const embed = new EmbedBuilder()

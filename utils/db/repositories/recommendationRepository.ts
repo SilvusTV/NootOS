@@ -1,4 +1,4 @@
-import { and, count, countDistinct, desc, eq } from 'drizzle-orm';
+import { and, count, countDistinct, desc, eq, like } from 'drizzle-orm';
 import { getDb, type AppDb } from '../client';
 import { recommendation, recommendationUpvote, type NewRecommendation, type Recommendation } from '../schema';
 
@@ -91,6 +91,21 @@ export class RecommendationRepository {
       .orderBy(desc(recommendation.createdAt))
       .limit(limit)
       .offset(offset)
+      .all();
+  }
+
+  search(guildId: string, query: string, type?: string, recommendedById?: string, limit = 25): Recommendation[] {
+    return this.db
+      .select()
+      .from(recommendation)
+      .where(and(
+        eq(recommendation.guildId, guildId),
+        type ? eq(recommendation.type, type) : undefined,
+        recommendedById ? eq(recommendation.recommendedById, recommendedById) : undefined,
+        query ? like(recommendation.title, `%${query}%`) : undefined,
+      ))
+      .orderBy(desc(recommendation.createdAt))
+      .limit(limit)
       .all();
   }
 }

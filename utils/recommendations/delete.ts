@@ -4,7 +4,7 @@ import { RecommendationRepository } from '../db';
 export async function deleteRecommendation(client: Client, guildId: string, id: number, requesterId: string, admin = false): Promise<string> {
   const repository = new RecommendationRepository();
   const recommendation = repository.findById(guildId, id);
-  if (!recommendation) return `La recommandation #${id} est introuvable.`;
+  if (!recommendation) return 'Cette recommandation est introuvable.';
   if (!admin && recommendation.recommendedById !== requesterId) return 'Tu ne peux supprimer que tes propres recommandations.';
 
   const channel: any = await client.channels.fetch(recommendation.channelId).catch(() => null);
@@ -17,5 +17,5 @@ export async function deleteRecommendation(client: Client, guildId: string, id: 
     }
   }
   repository.delete(recommendation.id);
-  return `La recommandation **#${recommendation.id} · ${recommendation.title}** a été supprimée.`;
+  return `La recommandation **${recommendation.title}** a été supprimée.`;
 }

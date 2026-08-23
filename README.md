@@ -8,9 +8,9 @@ BobbyBot est un bot Discord de recommandations pour un serveur entre amis. Il re
 - `/recos [type]` liste les 25 dernières recommandations, avec titre, année et artiste pour les musiques.
 - `/recoconfig type salon` associe un salon aux vidéos YouTube, musiques, jeux, films ou séries. Cette commande requiert la permission Administrateur.
 - `/adminreco membre type recherche` permet à un administrateur de publier une recommandation au nom d'un membre.
-- `/supprimerreco id` supprime sa propre recommandation et son message ; `/adminsupprimerreco id` permet aux administrateurs de supprimer n'importe laquelle.
-- `/upvotereco id` ajoute ou retire un vote. Les réactions ⬆️ et ➕ sur une fiche comptent également comme un vote, sans doublon par membre.
-- `/recos [type]` affiche 20 recommandations par page avec leur identifiant et leur nombre d'upvotes.
+- `/supprimerreco type recommandation` recherche par titre et supprime sa propre recommandation et son message ; `/adminsupprimerreco` permet aux administrateurs de supprimer n'importe laquelle.
+- `/upvotereco type recommandation` recherche par titre puis ajoute ou retire un vote. Les réactions ⬆️ et ➕ sur une fiche comptent également comme un vote, sans doublon par membre.
+- `/recos [type]` affiche 20 recommandations par page avec leur nombre d'upvotes.
 - Les vidéos et musiques utilisent YouTube, les jeux utilisent Steam, et les films et séries utilisent TMDB. Les liens IMDb sont acceptés pour les films et séries.
 - Une même œuvre ne peut être recommandée qu'une fois par catégorie et par serveur.
 

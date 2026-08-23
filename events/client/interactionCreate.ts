@@ -2,6 +2,12 @@ export = {
   name: 'interactionCreate',
   once: false,
   async execute(client: any, interaction: any) {
+    if (interaction.isAutocomplete()) {
+      const cmd = client.commands.get(interaction.commandName);
+      if (cmd?.runAutocomplete) await cmd.runAutocomplete(client, interaction);
+      else await interaction.respond([]);
+      return;
+    }
     if (interaction.isMessageComponent()) {
       const { handleRecommendationComponent } = await import('../../utils/recommendations');
       if (await handleRecommendationComponent(client, interaction)) return;

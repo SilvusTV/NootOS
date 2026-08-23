@@ -21,6 +21,9 @@ test('RecommendationRepository stores, detects and lists recommendations', async
   assert.equal(repository.findDuplicate('guild-1', 'music', 'video-1')?.id, created.id);
   assert.equal(repository.findDuplicate('guild-2', 'music', 'video-1'), undefined);
   assert.deepEqual(repository.list('guild-1', 'music').map((row) => row.title), ['A Song']);
+  assert.deepEqual(repository.search('guild-1', 'Song', 'music', 'user-1').map((row) => row.id), [created.id]);
+  assert.equal(repository.search('guild-1', 'Song', 'movie').length, 0);
+  assert.equal(repository.search('guild-1', 'Song', 'music', 'another-user').length, 0);
 
   repository.addUpvote(created.id, 'user-2', 'command');
   repository.addUpvote(created.id, 'user-2', 'reaction:⬆️');
