@@ -5,6 +5,8 @@ export = {
     if (interaction.isMessageComponent()) {
       const { handleRecommendationComponent } = await import('../../utils/recommendations');
       if (await handleRecommendationComponent(client, interaction)) return;
+      const { handleRecommendationListComponent } = await import('../../utils/recommendations/list');
+      if (await handleRecommendationListComponent(client, interaction)) return;
     }
     if (interaction.isCommand() || interaction.isContextMenuCommand()) {
       const cmd = client.commands.get(interaction.commandName);

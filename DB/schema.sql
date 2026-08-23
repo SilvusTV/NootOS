@@ -47,3 +47,15 @@ CREATE TABLE IF NOT EXISTS recommendation (
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   UNIQUE (guild_id, type, external_id)
 );
+
+-- Upvotes can come from the command or either supported Discord reaction.
+-- A member is counted once even when several sources are active.
+CREATE TABLE IF NOT EXISTS recommendation_upvote (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  recommendation_id INTEGER NOT NULL,
+  user_id TEXT NOT NULL,
+  source TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (recommendation_id) REFERENCES recommendation(id) ON DELETE CASCADE,
+  UNIQUE (recommendation_id, user_id, source)
+);

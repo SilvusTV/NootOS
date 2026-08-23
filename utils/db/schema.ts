@@ -65,9 +65,28 @@ export const recommendation = sqliteTable(
   }),
 );
 
+export const recommendationUpvote = sqliteTable(
+  'recommendation_upvote',
+  {
+    id: integer('id').primaryKey({ autoIncrement: true }),
+    recommendationId: integer('recommendation_id').notNull().references(() => recommendation.id, { onDelete: 'cascade' }),
+    userId: text('user_id').notNull(),
+    source: text('source').notNull(),
+    createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+  },
+  (table) => ({
+    recommendationUserSourceUnique: uniqueIndex('recommendation_upvote_recommendation_user_source_unique').on(
+      table.recommendationId,
+      table.userId,
+      table.source,
+    ),
+  }),
+);
+
 export type Config = typeof config.$inferSelect;
 export type NewConfig = typeof config.$inferInsert;
 export type CustomCommand = typeof customCommand.$inferSelect;
 export type NewCustomCommand = typeof customCommand.$inferInsert;
 export type Recommendation = typeof recommendation.$inferSelect;
 export type NewRecommendation = typeof recommendation.$inferInsert;
+export type RecommendationUpvote = typeof recommendationUpvote.$inferSelect;
