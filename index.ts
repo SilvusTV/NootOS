@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import CommandUtil from './utils/handlers/CommandUtil';
 import EventUtil from './utils/handlers/EventUtil';
 import SelectUtil from './utils/handlers/SelectUtil';
-import { closeDb } from './utils/db';
+import { closeDb, ensureDatabaseInitialized } from './utils/db';
 
 dotenv.config();
 
@@ -23,7 +23,14 @@ const client = new Client({
 (client as any).commands = new Collection();
 ['selects'].forEach((x) => ((client as any)[x] = new Collection()));
 
-[CommandUtil, EventUtil, SelectUtil].forEach((handler: (c: Client) => unknown) => handler(client));
+async function start() {
+  if (!process.env.DISCORD_TOKEN) throw new Error('Renseigne DISCORD_TOKEN dans .env.');
+  await ensureDatabaseInitialized();
+  await CommandUtil(client);
+  await EventUtil(client);
+  await SelectUtil(client);
+  await client.login(process.env.DISCORD_TOKEN);
+}
 
 process.on('exit', (code) => {
   closeDb();
@@ -37,4 +44,4 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 process.on('warning', (...args) => console.log(...args));
 
-client.login(process.env.DISCORD_TOKEN as string);
+start().catch((error) => { console.error(error.message); process.exitCode = 1; });

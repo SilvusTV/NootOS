@@ -55,8 +55,8 @@ export async function ensureDatabaseInitialized(): Promise<void> {
       });
     });
   } catch (e: any) {
-    // Only log the error, do not throw (per requirement)
     Logger.error(`Database initialization error: ${e?.message || e}`);
+    throw e;
   }
 }
 

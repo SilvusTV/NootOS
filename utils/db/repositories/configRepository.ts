@@ -3,6 +3,9 @@ import { getDb, type AppDb } from '../client';
 import { config, type Config } from '../schema';
 
 export const CONFIG_KEYS = {
+  nootChannel: 'nootChannel',
+  carnetChannelDate: 'carnetChannelDate',
+  carnetChannelIdea: 'carnetChannelIdea',
   customCommandPrefix: 'customCommandPrefix',
   recoChannelYoutube: 'recoChannelYoutube',
   recoChannelMusic: 'recoChannelMusic',

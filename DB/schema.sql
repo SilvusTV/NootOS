@@ -59,3 +59,34 @@ CREATE TABLE IF NOT EXISTS recommendation_upvote (
   FOREIGN KEY (recommendation_id) REFERENCES recommendation(id) ON DELETE CASCADE,
   UNIQUE (recommendation_id, user_id, source)
 );
+
+CREATE TABLE IF NOT EXISTS noot_item (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  guild_id TEXT NOT NULL, kind TEXT NOT NULL, title TEXT NOT NULL,
+  details TEXT NOT NULL DEFAULT '', url TEXT,
+  status TEXT NOT NULL DEFAULT 'wishlist', created_by TEXT NOT NULL,
+  source_key TEXT, created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(guild_id, source_key)
+);
+CREATE TABLE IF NOT EXISTS noot_review (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  item_id INTEGER NOT NULL REFERENCES noot_item(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL, date TEXT NOT NULL, rating REAL,
+  comment TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  CHECK(rating IS NULL OR (rating >= 0 AND rating <= 5)),
+  UNIQUE(item_id, user_id, date)
+);
+CREATE TABLE IF NOT EXISTS noot_conversation (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  guild_id TEXT NOT NULL, channel_id TEXT NOT NULL, user_id TEXT NOT NULL,
+  role TEXT NOT NULL, content TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS noot_item_guild ON noot_item(guild_id);
+CREATE INDEX IF NOT EXISTS noot_conversation_scope ON noot_conversation(guild_id, channel_id, user_id);
+
+CREATE TABLE IF NOT EXISTS noot_publication (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  item_id INTEGER NOT NULL REFERENCES noot_item(id) ON DELETE CASCADE,
+  channel_id TEXT NOT NULL, message_id TEXT NOT NULL,
+  UNIQUE(channel_id, message_id)
+);

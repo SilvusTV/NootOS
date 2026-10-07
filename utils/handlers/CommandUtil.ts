@@ -16,6 +16,10 @@ export default async function CommandUtil(client: any): Promise<void> {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const cmd = require(cmdFile);
 
+    // Only expose the commands relevant to the private NootOS server.
+    const enabled = ['carnet', 'noot', 'installer', 'aide', 'ping', 'uptime'];
+    if (!enabled.includes(cmd.name)) return;
+
     if (!cmd.name) return Logger.warn(`no command name : ${cmdFile}`);
 
     if (!cmd.description && cmd.type !== ApplicationCommandType.User)

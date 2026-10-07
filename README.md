@@ -1,291 +1,96 @@
-# BobbyBot
+# 🐧 NootOS — NOOT NOOOOT
 
-BobbyBot est un bot Discord de recommandations pour un serveur entre amis. Il recherche les métadonnées, propose un aperçu, puis publie une fiche dans le salon associé à la catégorie.
+Votre petit monde à deux sur Discord : films, séries, jeux, idées de dates et souvenirs. NootOS prolonge BobbyBot avec un carnet partagé et un compagnon IA qui peut y lire et enregistrer ce que vous lui demandez.
 
-## Recommandations
+## Démarrer
 
-- `/reco type recherche` accepte un nom ou un lien, affiche jusqu'à cinq résultats, puis demande confirmation.
-- `/recos [type]` liste les 25 dernières recommandations, avec titre, année et artiste pour les musiques.
-- `/recoconfig type salon` associe un salon aux vidéos YouTube, musiques, jeux, films ou séries. Cette commande requiert la permission Administrateur.
-- `/adminreco membre type recherche` permet à un administrateur de publier une recommandation au nom d'un membre.
-- `/supprimerreco type recommandation` recherche par titre et supprime sa propre recommandation et son message ; `/adminsupprimerreco` permet aux administrateurs de supprimer n'importe laquelle.
-- `/upvotereco type recommandation` recherche par titre puis ajoute ou retire un vote. Les réactions ⬆️ et ➕ sur une fiche comptent également comme un vote, sans doublon par membre.
-- `/recos [type]` affiche 20 recommandations par page avec leur nombre d'upvotes.
-- Les vidéos et musiques utilisent YouTube, les jeux utilisent Steam, et les films et séries utilisent TMDB. Les liens IMDb sont acceptés pour les films et séries.
-- Une même œuvre ne peut être recommandée qu'une fois par catégorie et par serveur.
+1. Installez Node.js **22.12 ou supérieur**, puis lancez `npm ci`.
+2. Copiez `.env.example` vers `.env` (`Copy-Item .env.example .env` dans PowerShell).
+3. Renseignez `DISCORD_TOKEN` et, de préférence, `GUILD_ID`, l’identifiant de NOOT NOOOOT. Gardez vos clés dans ce fichier local.
+4. Dans le [portail Discord](https://discord.com/developers/applications), activez **Message Content Intent** et **Server Members Intent** dans l’onglet Bot (la base utilise ces intents).
+5. Invitez NootOS avec les scopes `bot` et `applications.commands`. Permissions du bot : **Voir les salons**, **Envoyer des messages**, **Intégrer des liens**, **Joindre des fichiers**, **Lire l’historique des messages** et **Gérer les salons** pour l’installation.
+6. Lancez `npm run build`, puis `npm start` (ou `npm run dev`).
+7. Dans Discord, lancez `/installer`, puis `/aide`.
 
-### Variables d'environnement
+`/installer` crée une catégorie NOOT NOOOOT avec les salons nootos, films, series, jeux, musique, videos, dates, idees et souvenirs. Une nouvelle exécution réutilise les salons présents et conserve les salons déjà configurés. Les deux membres peuvent utiliser les commandes sans rôle administrateur ; NootOS a besoin de ses propres permissions Discord.
 
-Copiez `.env.example` vers `.env`, puis renseignez :
+Avec `GUILD_ID`, les commandes sont publiées directement sur votre serveur et les interactions ailleurs sont refusées. Sans cette variable, elles sont globales et leur apparition peut prendre du temps. Donnez le nom **NootOS** à l’application dans le portail Discord : `DISCORD_BOT_NAME` modifie seulement les logs. Le programme doit rester lancé pour que NootOS réponde.
+
+## Le carnet
+
+| Commande | Usage |
+| --- | --- |
+| `/carnet ajouter type recherche` | Chercher une œuvre par nom ou lien via TMDB, Steam ou YouTube, choisir le résultat puis confirmer l’ajout et la publication. Les dates et idées sont ajoutées librement. |
+| `/carnet config type salon` | Choisir le salon où publier les nouvelles fiches d’une catégorie. |
+| `/carnet voter id` | Ajouter ou retirer un vote sur une œuvre trouvée par la recherche. |
+| `/carnet delete id` | Après confirmation, supprimer une fiche, tous ses avis et votes et les messages publiés dont l’emplacement est connu. |
+| `/carnet liste` | Filtrer par catégorie, statut ou titre ; 15 fiches par page. |
+| `/carnet fiche id` | Lire les détails et les huit derniers avis individuels. |
+| `/carnet avis id note retour date` | Garder votre note sur 5, votre ressenti et sa date. Tous les champs après l’identifiant sont facultatifs. |
+| `/carnet statut id valeur` | Passer une fiche de « À faire » à « En cours » ou « Terminé ». |
+| `/carnet hasard` | Piocher une envie avec un filtre de catégorie facultatif. |
+| `/carnet export` | Télécharger toutes vos fiches et tous vos avis en JSON. |
+| `/noot message texte vocal` | Parler à NootOS ou joindre un fichier audio. |
+| `/noot oublier` | Effacer votre mémoire de conversation dans le salon actuel. |
+
+Toutes les commandes utilisent maintenant les identifiants du carnet, par exemple #12. Les anciennes commandes `/reco`, `/recos`, `/recoconfig`, `/supprimerreco` et `/upvotereco` ne sont plus publiées. Les données BobbyBot sont conservées et reprises dans `/carnet liste`.
+
+Exemples : `/carnet ajouter type:Film recherche:Dune`, `/carnet ajouter type:Jeu recherche:https://store.steampowered.com/app/620/`, ou `/carnet ajouter type:Sortie recherche:Pique-nique details:Au lac, budget 20 €`. L’option `lien` prend la priorité sur le nom pour rechercher une œuvre. `libre:true` permet de conserver manuellement une œuvre hors catalogue, sans appeler les services de recherche. L’ajout libre publie immédiatement une fiche ; la recherche propose un aperçu et demande confirmation. Le salon configuré est utilisé, sinon la fiche est publiée dans le salon de la commande. Une publication libre qui échoue laisse la fiche enregistrée et le signale explicitement.
+
+Les fiches recherchées conservent l’affiche, l’année, le lien et les autres métadonnées disponibles. Les détails personnels sont conservés lors de la sélection et de la confirmation. Une œuvre déjà enregistrée par son identifiant externe n’est pas ajoutée à nouveau. Les ajouts libres sont indépendants et ne bénéficient pas de cette détection par identifiant externe.
+
+Chacun garde sa propre note, éventuellement décimale (4,5/5). Un avis du même auteur, pour la même fiche et la même date, corrige l’entrée existante ; une nouvelle date crée un nouveau souvenir. Sans note, elle reste vide. Sans date, on utilise aujourd’hui en Europe/Paris (modifiable avec `NOOT_TIMEZONE`). Un avis ne change pas automatiquement le statut commun, car chacun peut voir l’œuvre à son rythme.
+
+Les anciennes recos sont copiées dans le carnet au démarrage, puis à chaque consultation. L’import est répétable et préserve les originaux. Supprimer une ancienne reco ne supprime pas son souvenir dans le carnet. Les commandes de maintenance et de modération héritées du kernel ne sont plus chargées dans NootOS.
+
+`/carnet delete` peut être utilisé par chacun de vous, avec un bouton de confirmation valable cinq minutes et réservé à la personne qui lance la commande. La suppression retire aussi la reco source pour empêcher sa réimportation. Si un message est déjà supprimé, la suppression du carnet continue ; si Discord refuse l’accès ou la suppression, la fiche et ses avis restent conservés pour réessayer. Les messages des anciennes fiches libres, publiés avant le suivi de leur emplacement, peuvent nécessiter une suppression manuelle. Les nouveaux messages libres sont désormais suivis automatiquement.
+
+## Discuter et envoyer des vocaux
+
+Ajoutez `OPENAI_API_KEY` dans `.env`, puis redémarrez. Le carnet manuel fonctionne sans OpenAI. Modèles configurables :
 
 ```env
-DISCORD_TOKEN=...
-YOUTUBE_API_KEY=...
-TMDB_API_TOKEN=...
-DB_LOCATION=./DB/bot.db
-DISCORD_BOT_NAME=BobbyBot
+OPENAI_API_KEY=
+OPENAI_MODEL=gpt-4.1-mini
+OPENAI_TRANSCRIPTION_MODEL=gpt-4o-mini-transcribe
+NOOT_TIMEZONE=Europe/Paris
 ```
 
-Le bot Discord doit disposer de `Voir le salon`, `Envoyer des messages` et `Intégrer des liens` dans chaque salon de recommandations. YouTube nécessite une clé YouTube Data API v3. TMDB nécessite un Read Access Token (Bearer).
+Dans le salon nootos, écrivez naturellement ou envoyez un message vocal. Vous pouvez aussi mentionner le bot ailleurs ou utiliser `/noot message` :
 
----
+- « Ajoute une balade au bord du lac dans nos idées de dates, budget 20 euros. »
+- « J’ai vu Dune hier, 8/10. Magnifique, mais un peu long. Enregistre mon avis. »
+- « Propose une série courte et légère selon nos envies et nos avis. »
+- « Passe la fiche #12 en terminé. »
 
-# Kernel de bot Discord
+Les fichiers OGG, MP3, WAV, M4A, WEBM, MP4, MPEG et MPGA joints directement à Discord sont acceptés, jusqu’à 24 Mo. Ce sont des **messages vocaux ou fichiers audio envoyés**, pas une écoute de salon vocal en direct. Leur transcription passe par les mêmes actions que le texte.
 
-Un noyau (kernel) minimaliste, moderne et extensible pour créer des bots Discord avec TypeScript et discord.js v14.
+NootOS cherche dans les fiches et avis pour personnaliser ses suggestions. Il peut ajouter une fiche, enregistrer votre propre avis ou changer un statut commun. Son accès à la base passe par des fonctions limitées et validées ; aucun SQL libre ni suppression. Il est guidé pour demander une précision si le titre est ambigu. L’interprétation IA peut se tromper : consultez les fiches et corrigez vos avis avec `/carnet avis`.
 
-Ce projet n'est pas un bot « clé en main »: c'est une base solide pensée pour être réutilisée comme fondation d'autres bots. Il fournit la structure, les utilitaires et les conventions nécessaires pour ajouter rapidement vos commandes, événements et composants interactifs (select menus, etc.).
+NootOS n’a pas de recherche Internet dans sa conversation IA : vérifiez les adresses, tarifs, horaires et disponibilités des sorties suggérées. La recherche de `/carnet ajouter` utilise `TMDB_API_TOKEN` pour films/séries, `YOUTUBE_API_KEY` pour vidéos/musique ; Steam fonctionne sans clé dans ce projet.
 
----
+Les messages adressés à NootOS, les vocaux transcrits et les résultats du carnet consultés sont transmis à OpenAI. Responses utilise `store: false`. Les six derniers échanges sont conservés localement par personne et par salon. `/noot oublier` efface cette mémoire locale, pas les fiches ni les avis. L’API a sa propre facturation : vérifiez le crédit et le budget du projet associé à votre clé. Documentation : [actions par fonctions](https://developers.openai.com/api/docs/guides/function-calling), [transcription audio](https://developers.openai.com/api/reference/resources/audio/subresources/transcriptions/methods/create).
 
-## ✨ Points forts
+## Visuels
 
-- TypeScript prêt à l'emploi (transpile avec `tsc`, dev avec `ts-node`).
-- `discord.js` v14 avec intents essentiels déjà configurés.
-- Chargement automatique des commandes, événements et selects (par dossiers).
-- Validation minimale des commandes (nom, description, catégorie, etc.).
-- Gestion centralisée des erreurs de process (uncaughtException, unhandledRejection…).
-- Organisation claire du projet, prête pour la mise en production (dossier `dist`, fichier `ecosystem.config.js` pour PM2).
+- [Icône NootOS](assets/branding/nootos-avatar.png) : pingouin en pâte à modeler tenant un écran glacé avec un cœur.
+- [Bannière NOOT NOOOOT](assets/branding/noot-noooot-banner.png) : deux pingouins pour une soirée film sur la banquise.
+- [Prompts et génération](assets/branding/PROMPTS.md).
 
----
+Importez l’icône dans le portail Discord pour le bot, ou comme icône du serveur. La bannière peut servir de visuel d’accueil ; l’option de bannière native dépend des fonctionnalités de votre serveur. Les images ne sont pas téléversées automatiquement.
 
-## 📦 Prérequis
+## Données et vérification
 
-- Node.js 18+ recommandé (compatibilité `discord.js` v14).
-- Un token de bot Discord (obtenu depuis le [Portail Développeur Discord]).
+SQLite conserve les données dans `DB_LOCATION` (par défaut `DB/bot.db`). Les tables NootOS sont ajoutées sans supprimer les tables BobbyBot. Pour une sauvegarde complète, arrêtez le bot puis copiez la base. `/carnet export` fournit toutes les fiches et tous les avis, sans la mémoire de conversation. La base et `.env` sont ignorés par Git. Aucun écran web ni hébergement automatique n’est inclus.
 
----
-
-## 🚀 Démarrage rapide
-
-1. Cloner le dépôt
-   ```bash
-   git clone <votre-fork-ou-repo> discord-bot-kernel
-   cd discord-bot-kernel
-   ```
-
-2. Installer les dépendances
-   ```bash
-   npm install
-   ```
-
-3. Configurer l'environnement
-   - Créez un fichier `.env` à la racine avec au minimum:
-     ```env
-     DISCORD_TOKEN=VotreTokenDeBotIci
-     # Optionnel / recommandé
-     NODE_ENV=development
-     # CLIENT_ID et GUILD_ID sont utiles si vous publiez des commandes slash par guilde
-     # CLIENT_ID=123456789012345678
-     # GUILD_ID=123456789012345678
-     ```
-
-4. Lancer en développement (TypeScript directement)
-   ```bash
-   npm run dev
-   ```
-
-5. Construire et lancer en production
-   ```bash
-   npm run build
-   npm start
-   ```
-
----
-
-## 🗂️ Structure du projet
-
-```
-.
-├─ commands/                 # Vos commandes (sous‑dossiers par catégorie)
-│  └─ <categorie>/
-│     └─ maCommande.ts
-├─ events/                   # Vos écouteurs d'événements Discord
-│  └─ <type>/
-│     └─ ready.ts
-├─ selects/                  # Vos handlers de SelectMenu
-├─ utils/
-│  └─ handlers/
-│     ├─ CommandUtil.ts      # Chargement/validation des commandes
-│     ├─ EventUtil.ts        # Chargement/enregistrement des événements
-│     └─ SelectUtil.ts       # Chargement des selects
-├─ index.ts                  # Point d'entrée (dev)
-├─ dist/                     # Sortie build (JS compilé)
-├─ package.json
-├─ tsconfig.json
-└─ ecosystem.config.js       # PM2 (déploiement/prod)
-```
-
----
-
-## 🧠 ORM (Drizzle + SQLite)
-
-Le kernel inclut une couche ORM légère avec **Drizzle**:
-
-- `utils/db/schema.ts`: mapping des tables SQL -> types TS.
-- `utils/db/client.ts`: client SQLite singleton + instance Drizzle.
-- `utils/db/repositories/`: repositories (CRUD, requêtes métier, transactions).
-
-Exemple:
-
-```ts
-import { ConfigRepository, CONFIG_KEYS } from './utils/db';
-
-const repo = new ConfigRepository();
-
-// Initialise les valeurs par défaut de config pour une guilde
-repo.ensureDefaultGuildConfig(interaction.guildId!);
-
-// lecture
-const prefix = repo.getValue(interaction.guildId!, CONFIG_KEYS.customCommandPrefix) || '!';
-```
-
----
-
-## ⚙️ Scripts NPM
-
-- `npm run dev` — Lancer le bot en développement avec `ts-node`.
-- `npm run build` — Compiler TypeScript vers `dist/` avec `tsc`.
-- `npm start` — Exécuter la version compilée `dist/index.js`.
-
----
-
-## 🧩 Ajouter une commande
-
-Placez vos fichiers de commandes dans `commands/<categorie>/<nom>.ts`.
-
-Le loader (`CommandUtil`) valide plusieurs propriétés minimales. Exemple de commande slash:
-
-```ts
-// commands/util/ping.ts
-import { ChatInputCommandInteraction, ApplicationCommandType, PermissionFlagsBits } from 'discord.js';
-
-export const name = 'ping';
-export const description = 'Vérifie la latence du bot.';
-export const category = 'util';
-export const ownerOnly = false; // bool obligatoire selon le kernel
-export const usage = '/ping';
-export const examples = ['ping'];
-export const defaultMemberPermissions = PermissionFlagsBits.SendMessages; // optionnel
-export const type = ApplicationCommandType.ChatInput;
-
-export async function run(interaction: ChatInputCommandInteraction) {
-  const msg = await interaction.reply({ content: 'Pong!', fetchReply: true });
-  await interaction.editReply(`Pong! Latence: ${Date.now() - (msg as any).createdTimestamp}ms`);
-}
-```
-
-Contraintes vérifiées par le kernel (warnings si manquant):
-- `name`, `description` (sauf pour `ApplicationCommandType.User`), `category`, `ownerOnly`, `usage`, `examples`.
-
-Note: L’enregistrement des commandes slash auprès de Discord (global/guilde) n’est pas inclus par défaut; implémentez votre routine selon vos besoins (REST `Routes.applicationCommands`, etc.).
-
----
-
-## 🎧 Ajouter un événement
-
-Placez les fichiers dans `events/<type>/<nom>.ts` (le `<type>` est libre — ex: `client`, `guild`, `message`, etc.). Exemple `ready`:
-
-```ts
-// events/client/ready.ts
-import { Client, Events } from 'discord.js';
-
-export const name = Events.ClientReady;
-export const once = true;
-
-export async function execute(client: Client) {
-  console.log(`Connecté en tant que ${client.user?.tag}`);
-}
-```
-
-`EventUtil` enregistre automatiquement l'événement via `client.on/once` et injecte `client` en premier argument de `execute`.
-
----
-
-## 🔽 Ajouter un Select Menu handler
-
-Placez vos handlers dans `selects/` (même convention que les commandes) et exposez un identifiant permettant de retrouver le handler côté interaction. Un exemple minimal:
-
-```ts
-// selects/example/choose-color.ts
-import { StringSelectMenuInteraction } from 'discord.js';
-
-export const name = 'choose-color'; // customId attendu côté composant
-
-export async function run(interaction: StringSelectMenuInteraction) {
-  await interaction.reply(`Vous avez choisi: ${interaction.values.join(', ')}`);
-}
-```
-
-Assurez‑vous de créer vos `StringSelectMenuBuilder` avec `setCustomId('choose-color')` pour relier l’interaction au handler.
-
----
-
-## 🔐 Variables d’environnement
-
-- `DISCORD_TOKEN` (requis): token du bot pour `client.login()`.
-- `NODE_ENV` (optionnel): `development` | `production`.
-- `CLIENT_ID`, `GUILD_ID` (optionnel): utiles pour les scripts d’enregistrement de commandes (si vous les ajoutez).
-
----
-
-## 🛠️ Débogage et logs
-
-- Le process gère: `uncaughtException`, `unhandledRejection`, `warning`, `exit` (voir `index.ts`).
-- Un utilitaire `Logger` est utilisé par le kernel pour tracer le chargement des commandes (consultez `utils/Logger` si présent dans votre version).
-
----
-
-## 📦 Déploiement (PM2)
-
-Un `ecosystem.config.js` est fourni pour PM2. Exemple de commandes:
-
-```bash
+```powershell
+npm test
 npm run build
-pm2 start ecosystem.config.js --env production
-pm2 logs
+npm start
 ```
 
-Adaptez le chemin de l'exécutable si nécessaire (par défaut `dist/index.js`).
+Les tests utilisent une base temporaire et des réponses OpenAI simulées : avis individuels, corrections, persistance, import, export, mémoire, actions IA et pièces jointes vocales. Une validation réelle Discord/OpenAI nécessite vos clés.
 
----
+## Crédit
 
-## ❓ Foire aux questions (FAQ)
-
-- Les commandes ne se chargent pas ?
-  - Vérifiez l’extension (`.ts` en dev, `.js` en prod dans `dist/`).
-  - Respectez les propriétés requises (`name`, `description`, `category`, `ownerOnly`, `usage`, `examples`).
-  - Contrôlez le pattern des dossiers: `commands/<categorie>/<fichier>.<ts|js>`.
-
-- Le bot ne démarre pas ?
-  - Assurez‑vous d’avoir `DISCORD_TOKEN` dans `.env`.
-  - Vérifiez les permissions/intents sur le portail Discord et dans `index.ts`.
-
----
-
-## 🗺️ Roadmap (suggestions)
-
-- Script d’enregistrement des commandes (global/guilde) via REST Discord.
-- Middlewares/guards (permissions, cooldowns, NSFW, etc.).
-- Système d’arguments et d’options pour commandes.
-- Intégration de tests et CI.
-
----
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues. Ouvrez une issue pour discuter d’un changement ou proposez directement une PR claire et ciblée.
-
----
-
-## 📄 Licence
-
-Ce projet est sous licence ISC (voir `LICENSE`).
-
----
-
-## 👤 Auteur
-
-Créé par `Silvus_tv` — merci de conserver la mention originale lors des forks si vous réutilisez le kernel.
-
-[Portail Développeur Discord]: https://discord.com/developers/applications
+NootOS est adapté du kernel et de BobbyBot créés par **Silvus_tv / Silvus**. La licence ISC et le fichier LICENSE sont conservés.

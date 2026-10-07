@@ -2,6 +2,11 @@ export = {
   name: 'interactionCreate',
   once: false,
   async execute(client: any, interaction: any) {
+    if (process.env.GUILD_ID && interaction.guildId !== process.env.GUILD_ID) {
+      if (interaction.isAutocomplete()) return interaction.respond([]);
+      if (interaction.isRepliable()) return interaction.reply({ content: 'NootOS est configuré pour votre serveur privé.', ephemeral: true });
+      return;
+    }
     if (interaction.isAutocomplete()) {
       const cmd = client.commands.get(interaction.commandName);
       if (cmd?.runAutocomplete) await cmd.runAutocomplete(client, interaction);
@@ -9,6 +14,8 @@ export = {
       return;
     }
     if (interaction.isMessageComponent()) {
+      const { handleNotebookDeleteComponent } = await import('../../utils/noot/delete');
+      if (await handleNotebookDeleteComponent(client, interaction)) return;
       const { handleRecommendationComponent } = await import('../../utils/recommendations');
       if (await handleRecommendationComponent(client, interaction)) return;
       const { handleRecommendationListComponent } = await import('../../utils/recommendations/list');

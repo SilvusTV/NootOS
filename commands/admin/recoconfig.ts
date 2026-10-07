@@ -1,11 +1,10 @@
-import { ApplicationCommandOptionType, ChannelType, PermissionFlagsBits } from 'discord.js';
+import { ApplicationCommandOptionType, ChannelType } from 'discord.js';
 import { CONFIG_KEYS, ConfigRepository } from '../../utils/db';
 
 const keys = { youtube: CONFIG_KEYS.recoChannelYoutube, music: CONFIG_KEYS.recoChannelMusic, game: CONFIG_KEYS.recoChannelGame, movie: CONFIG_KEYS.recoChannelMovie, series: CONFIG_KEYS.recoChannelSeries } as const;
 
 export = {
   name: 'recoconfig', category: 'admin', ownerOnly: false, usage: 'recoconfig type salon', examples: ['recoconfig film #films'],
-  defaultMemberPermissions: PermissionFlagsBits.Administrator,
   description: 'Configurer le salon de publication d’un type de reco.',
   options: [
     { name: 'type', description: 'Type de recommandation', type: ApplicationCommandOptionType.String, required: true, choices: [

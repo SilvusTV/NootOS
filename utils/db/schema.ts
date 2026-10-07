@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { integer, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
+import { integer, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 
 export const config = sqliteTable(
   'config',
@@ -90,3 +90,44 @@ export type NewCustomCommand = typeof customCommand.$inferInsert;
 export type Recommendation = typeof recommendation.$inferSelect;
 export type NewRecommendation = typeof recommendation.$inferInsert;
 export type RecommendationUpvote = typeof recommendationUpvote.$inferSelect;
+
+export const notebookItem = sqliteTable('noot_item', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  guildId: text('guild_id').notNull(),
+  kind: text('kind').notNull(),
+  title: text('title').notNull(),
+  details: text('details').notNull().default(''),
+  url: text('url'),
+  status: text('status').notNull().default('wishlist'),
+  createdBy: text('created_by').notNull(),
+  sourceKey: text('source_key'),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+}, t => ({ sourceUnique: uniqueIndex('noot_item_source').on(t.guildId, t.sourceKey) }));
+
+export const notebookReview = sqliteTable('noot_review', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  itemId: integer('item_id').notNull().references(() => notebookItem.id, { onDelete: 'cascade' }),
+  userId: text('user_id').notNull(),
+  date: text('date').notNull(),
+  rating: real('rating'),
+  comment: text('comment').notNull().default(''),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+}, t => ({ entryUnique: uniqueIndex('noot_review_entry').on(t.itemId, t.userId, t.date) }));
+
+export const nootConversation = sqliteTable('noot_conversation', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  guildId: text('guild_id').notNull(),
+  channelId: text('channel_id').notNull(),
+  userId: text('user_id').notNull(),
+  role: text('role').notNull(),
+  content: text('content').notNull(),
+});
+
+export type NotebookItem = typeof notebookItem.$inferSelect;
+
+export const notebookPublication = sqliteTable('noot_publication', {
+  id: integer('id').primaryKey({ autoIncrement: true }),
+  itemId: integer('item_id').notNull().references(() => notebookItem.id, { onDelete: 'cascade' }),
+  channelId: text('channel_id').notNull(),
+  messageId: text('message_id').notNull(),
+}, t => ({ messageUnique: uniqueIndex('noot_publication_message').on(t.channelId, t.messageId) }));

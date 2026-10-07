@@ -9,9 +9,24 @@ dist/
 .env.test.local
 .env.production.local
 .env.local
+.env.*
+!.env.example
+# Private keys and local credentials
+*.pem
+*.key
+credentials.json
+# Local databases
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
 #editor
 .idea
 /color
 DB/bot.db
 DB/bot.db-shm
 DB/bot.db-wal
+DB/*.db
+DB/*.db-shm
+DB/*.db-wal
